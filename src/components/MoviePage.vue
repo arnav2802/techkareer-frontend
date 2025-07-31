@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-900 text-white min-h-screen">
+  <div class="bg-white text-black dark:bg-gray-900 dark:text-white min-h-screen transition-colors duration-300">
     <!-- Navbar -->
     <nav class="bg-gray-950 text-white px-6 py-4 flex items-center justify-between shadow-md">
       <div class="flex items-center gap-3">
@@ -19,6 +19,12 @@
           <option>EN</option>
           <option>FR</option>
         </select>
+        <button
+          @click="toggleDarkMode"
+          class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-700 hover:bg-gray-600 text-white"
+        >
+          <font-awesome-icon :icon="isDark ? ['fas', 'sun'] : ['fas', 'moon']" />
+        </button>
       </div>
     </nav>
 
@@ -102,7 +108,20 @@ export default {
     return {
       loading: true,
       movie: {},
+      isDark: false,
     };
+  },
+  methods: {
+    toggleDarkMode() {
+      this.isDark = !this.isDark;
+      localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+      const root = document.documentElement;
+      if (this.isDark) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    },
   },
   computed: {
     rating() {
@@ -118,6 +137,14 @@ export default {
     },
   },
   async mounted() {
+    // Apply saved theme on load
+    const theme = localStorage.getItem('theme');
+    this.isDark = theme === 'dark';
+    if (this.isDark) {
+      document.documentElement.classList.add('dark');
+    }
+
+    // Fetch movie data
     try {
       const res = await fetch("https://www.omdbapi.com/?i=tt3896198&apikey=d2132124");
       this.movie = await res.json();
